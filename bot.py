@@ -9,15 +9,17 @@ MONTHS = ['','January','February','March','April','May','June','July', 'August',
 'November', 'December']
 
 def in_wait_room(driver):
-    return driver.current_url == 'https://waitingroom.snow.com/?c=vailresorts&e=epicpasspriority1125&ver=v3-aspnet-3.6.2&cver=91&man=Sapphire%20-%20Reservation%20Pages%20and%20APIs%20-%20PROD&l=Sapphire%20Reservation%20Waiting%20Room&t=https%3A%2F%2Fwww.epicpass.com%2Fplan-your-trip%2Flift-access%2Freservations.aspx%3Freservation%3Dtrue'
+    return 'https://waitingroom.snow.com' in driver.current_url
 
 def sign_in(driver, reservation_url, account_keys):
     # Enter email and password
     driver.get(reservation_url)
+    if ('https://www.epicpass.com/waitingroom/reservations' in driver.current_url):
+        driver.find_element_by_xpath('/html/body/div/div/div[2]/a[1]').click()
     # Check to see if we are in the waiting room
-    while (in_wait_room(driver)):
-        time.sleep(5)
-        driver.refresh()
+    # while (in_wait_room(driver)):
+    #     time.sleep(5)
+    #     driver.refresh()
     driver.find_element_by_xpath('//*[@id="txtUserName_3"]').send_keys(account_keys['email'])
     driver.find_element_by_xpath('//*[@id="txtPassword_3"]').send_keys(account_keys['password'])
 
@@ -26,10 +28,11 @@ def sign_in(driver, reservation_url, account_keys):
             EC.presence_of_element_located((By.ID, "onetrust-accept-btn-handler"))
         )
         driver.find_element_by_xpath('//*[@id="onetrust-accept-btn-handler"]').click()
-        driver.find_element_by_xpath('//*[@id="divReturningCustomerForm"]/div[4]/button').click()
+        time.sleep(2)
+        driver.find_element_by_xpath('/html/body/div[3]/div/div/div[2]/div/div/div[1]/form/div/div/div[5]/button').click()
 
     except: # If the accept cookies button doesn't appear, proceed with sign in
-        driver.find_element_by_xpath('//*[@id="divReturningCustomerForm"]/div[4]/button').click()
+        driver.find_element_by_xpath('/html/body/div[3]/div/div/div[2]/div/div/div[1]/form/div/div/div[5]/button').click()
     
     if (EC.presence_of_element_located((By.ID, 'errorMessage_3'))):
         raise Exception('Invalid login credentials!')
